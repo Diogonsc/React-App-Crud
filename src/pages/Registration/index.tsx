@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-
+import React, { useCallback, useEffect, useState } from 'react'
+import axios from "axios";
 import { GridColDef } from "@mui/x-data-grid";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,6 +11,8 @@ import {
   IconButton,
 } from "./registration";
 import TableComponent from '../../components/Table';
+import ModalComponent from '../../components/ModalComponent';
+import { FormComponent } from '../../components/FormComponent';
 
 export interface IClient {
   id: number;
@@ -37,11 +39,11 @@ const RegistrationPage: React.FC = () => {
       width: 150,
       renderCell: (params) => (
         <ContainerButton>
-          <IconButton onClick={() => console.log('Editando', params.row)}>
-            <DeleteIcon titleAccess='Editar' />
+          <IconButton onClick={() => handleEdit(params.row)}>
+            <EditIcon titleAccess="Editar" />
           </IconButton>
-          <IconButton onClick={() => console.log('Excluindo', params.row.id)}>
-            <EditIcon titleAccess="Excluir" />
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon titleAccess='Excluir' />
           </IconButton>
         </ContainerButton>
       ),
@@ -60,6 +62,47 @@ const RegistrationPage: React.FC = () => {
     { field: "state", headerName: "Estado", width: 200 },
   ]);
   const [rows, setRows] = useState<IClient[]>([]);
+  const [open, setOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<IClient | null>(null);
+  const [isEdit, setIsEdit] = useState(false);
+
+  const handleOpenModal = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setOpen(false);
+    setSelectedClient(null);
+    setIsEdit(false);
+  }, []);
+
+  const handleEdit = useCallback((client: IClient) => {
+    setSelectedClient(client);
+    setIsEdit(true);
+    setOpen(true);
+  }, []);
+
+  const handleDelete = useCallback(async (id: number) => {
+    try {
+        await axios.delete(`/api/clients/${id}`);
+        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+    } catch (error) {
+      console.error("Erro ao excluir cliente:", error);
+    }
+  }, []);
+
+  const getAllClients = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/clients");
+      setRows(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar clientes:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getAllClients();
+  }, [getAllClients]);
 
   return (
     <ContainerRegistration>
@@ -67,8 +110,21 @@ const RegistrationPage: React.FC = () => {
         <TableComponent
           columns={columns}
           rows={rows}
+          openModal={handleOpenModal}
         />
       </ContainerTable>
+      <ModalComponent
+        openModal={open}
+        closeModal={handleCloseModal}
+        title={isEdit ? "Editar Cliente" : "Novo Cliente"}
+      >
+        <FormComponent
+          client={selectedClient}
+          isEdit={isEdit}
+          closeModal={handleCloseModal}
+          getAllClients={getAllClients}
+        />
+      </ModalComponent>
     </ContainerRegistration>
   );
 }
