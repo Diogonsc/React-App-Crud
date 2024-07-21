@@ -13,6 +13,7 @@ import {
 import TableComponent from '../../components/Table';
 import ModalComponent from '../../components/ModalComponent';
 import { FormComponent } from '../../components/FormComponent';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal'; // ajuste o caminho conforme necessário
 
 export interface IClient {
   id: number;
@@ -42,7 +43,7 @@ const RegistrationPage: React.FC = () => {
           <IconButton onClick={() => handleEdit(params.row)}>
             <EditIcon titleAccess="Editar" />
           </IconButton>
-          <IconButton onClick={() => handleDelete(params.row.id)}>
+          <IconButton onClick={() => openConfirmDeleteModal(params.row.id)}>
             <DeleteIcon titleAccess='Excluir' />
           </IconButton>
         </ContainerButton>
@@ -65,6 +66,8 @@ const RegistrationPage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<IClient | null>(null);
   const [isEdit, setIsEdit] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<number | null>(null);
 
   const handleOpenModal = useCallback(() => {
     setOpen(true);
@@ -82,14 +85,27 @@ const RegistrationPage: React.FC = () => {
     setOpen(true);
   }, []);
 
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-        await axios.delete(`/api/clients/${id}`);
-        setRows((prevRows) => prevRows.filter((row) => row.id !== id));
-    } catch (error) {
-      console.error("Erro ao excluir cliente:", error);
+  const handleDelete = useCallback(async () => {
+    if (clientToDelete !== null) {
+      try {
+        await axios.delete(`/api/clients/${clientToDelete}`);
+        setRows((prevRows) => prevRows.filter((row) => row.id !== clientToDelete));
+        setConfirmDeleteOpen(false);
+      } catch (error) {
+        console.error("Erro ao excluir cliente:", error);
+      }
     }
-  }, []);
+  }, [clientToDelete]);
+
+  const openConfirmDeleteModal = (id: number) => {
+    setClientToDelete(id);
+    setConfirmDeleteOpen(true);
+  };
+
+  const closeConfirmDeleteModal = () => {
+    setConfirmDeleteOpen(false);
+    setClientToDelete(null);
+  };
 
   const getAllClients = useCallback(async () => {
     try {
@@ -125,8 +141,14 @@ const RegistrationPage: React.FC = () => {
           getAllClients={getAllClients}
         />
       </ModalComponent>
+      <ConfirmDeleteModal
+        open={confirmDeleteOpen}
+        onClose={closeConfirmDeleteModal}
+        onConfirm={handleDelete}
+        message='Deseja realmente excluir o cliente?'
+      />
     </ContainerRegistration>
   );
 }
 
-export default RegistrationPage
+export default RegistrationPage;
