@@ -18,7 +18,7 @@ const schema = yup
     email: yup.string().email("Email inválido").required("Email é obrigatório"),
     phone: yup.string().required("Telefone é obrigatório"),
     street: yup.string().required("Rua é obrigatória"),
-    number: yup.string().required("Número é obrigatório"),
+    number: yup.string().required("Nº é obrigatório"),
     complement: yup.string(),
     neighborhood: yup.string().required("Bairro é obrigatório"),
     city: yup.string().required("Cidade é obrigatória"),
@@ -125,7 +125,7 @@ export const FormComponent = ({
                 }
                 render={({ field }) => (
                   <DatePicker
-                    label="Data de Nascimento *"
+                    label="Data de Nascimento"
                     {...field}
                     renderInput={(params) => (
                       <TextField
