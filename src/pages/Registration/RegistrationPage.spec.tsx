@@ -1,10 +1,11 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import axios from 'axios';
-import RegistrationPage, { IClient } from '../pages/Registration';
+import { render, screen, waitFor } from '@testing-library/react';
+import { getAllClients } from '../../services/getAllClients';
+import RegistrationPage from '.';
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+jest.mock('../../services/getAllClients', () => ({
+  getAllClients: jest.fn(),
+}));
 
 describe('RegistrationPage', () => {
   beforeEach(() => {
@@ -12,7 +13,7 @@ describe('RegistrationPage', () => {
   });
 
   it('renderiza TableComponent com dados do cliente', async () => {
-    const mockClients: IClient[] = [
+    const mockClients = [
       {
         id: 1,
         name: 'John Doe',
@@ -31,8 +32,12 @@ describe('RegistrationPage', () => {
       },
     ];
 
-    mockedAxios.get.mockResolvedValue({ data: mockClients });
+    (getAllClients as jest.Mock).mockResolvedValue(mockClients);
 
     render(<RegistrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
   });
 });

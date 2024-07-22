@@ -1,13 +1,21 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor  } from '@testing-library/react';
-import { FormComponent } from '../components/FormComponent';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FormComponent } from '.';
 import { BrowserRouter as Router } from 'react-router-dom';
-import axios from "axios";
+import { createClient } from '../../services/createClient';
+import { updateClient } from '../../services/updateClient';
+import dayjs from 'dayjs';
 
 const mockGetAllClients = jest.fn();
 const mockCloseModal = jest.fn();
 
-jest.mock("axios");
+jest.mock('../../services/createClient', () => ({
+  createClient: jest.fn(),
+}));
+
+jest.mock('../../services/updateClient', () => ({
+  updateClient: jest.fn(),
+}));
 
 describe('FormComponent', () => {
   beforeEach(() => {
@@ -59,7 +67,7 @@ describe('FormComponent', () => {
     render(
       <Router>
         <FormComponent
-           client={{
+          client={{
             name: 'John Doe',
             email: 'john.doe@example.com',
             phone: '(11) 99999-9999',
@@ -88,61 +96,25 @@ describe('FormComponent', () => {
     expect(screen.getByLabelText(/Email/i)).toHaveValue('jane.doe@example.com');
   });
 
-  it("fecha o modal ao clicar no botão de cancelar", () => {
-    const mockCloseModal = jest.fn();
-    const mockGetAllClients = jest.fn();
-
-    render(
-      <Router>
-        <FormComponent
-          client={{
-            name: "John Doe",
-            email: "john.doe@example.com",
-            phone: "(11) 99999-9999",
-            street: "Main St",
-            number: "123",
-            complement: "Apt 4B",
-            neighborhood: "Downtown",
-            city: "Metropolis",
-            state: "SP",
-            zip: "12345-678",
-            birthDate: "1987-11-25T02:00:00.000Z",
-            gender: "Masculino",
-            notes: "Some notes",
-          }}
-          isEdit={true}
-          closeModal={mockCloseModal}
-          getAllClients={mockGetAllClients}
-        />
-      </Router>
-    );
-
-    mockCloseModal();
-    expect(mockCloseModal).toHaveBeenCalledTimes(1);
-  });
-
-  it("simula o envio do formulário e chama as funções corretamente", async () => {
-    const mockCloseModal = jest.fn();
-    const mockGetAllClients = jest.fn();
-
+  it('simula o envio do formulário e chama as funções corretamente', async () => {
     render(
       <Router>
         <FormComponent
           client={{
             id: 1,
-            name: "John Doe",
-            email: "john.doe@example.com",
-            phone: "(11) 99999-9999",
-            street: "Main St",
-            number: "123",
-            complement: "Apt 4B",
-            neighborhood: "Downtown",
-            city: "Metropolis",
-            state: "SP",
-            zip: "12345-678",
-            birthDate: "1987-11-25T02:00:00.000Z",
-            gender: "Masculino",
-            notes: "Some notes",
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phone: '(11) 99999-9999',
+            street: 'Main St',
+            number: '123',
+            complement: 'Apt 4B',
+            neighborhood: 'Downtown',
+            city: 'Metropolis',
+            state: 'SP',
+            zip: '12345-678',
+            birthDate: '1987-11-25T02:00:00.000Z',
+            gender: 'Masculino',
+            notes: 'Some notes',
           }}
           isEdit={true}
           closeModal={mockCloseModal}
@@ -151,14 +123,30 @@ describe('FormComponent', () => {
       </Router>
     );
 
-    axios.put.mockResolvedValue({ data: {} });
+    (updateClient as jest.Mock).mockResolvedValue({ data: {} });
+    (createClient as jest.Mock).mockResolvedValue({ data: {} });
 
-    fireEvent.click(screen.getByRole("button", { name: /Salvar/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Salvar/i }));
 
-    await waitFor(() => expect(axios.put).toHaveBeenCalledWith("/api/clients/1", expect.any(Object)));
+    await waitFor(() => {
+      expect(updateClient).toHaveBeenCalledWith(1, expect.objectContaining({
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        phone: '(11) 99999-9999',
+        street: 'Main St',
+        number: '123',
+        complement: 'Apt 4B',
+        neighborhood: 'Downtown',
+        city: 'Metropolis',
+        state: 'SP',
+        zip: '12345-678',
+        birthDate: dayjs('1987-11-25T02:00:00.000Z').toDate(),
+        gender: 'Masculino',
+        notes: 'Some notes',
+      }));
+    });
 
     await waitFor(() => expect(mockCloseModal).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(mockGetAllClients).toHaveBeenCalledTimes(1));
   });
-
 });

@@ -1,6 +1,6 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
-import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import ConfirmDeleteModal from ".";
 
 describe("ConfirmDeleteModal", () => {
   it("renderiza o modal com o título e conteúdo corretos", () => {

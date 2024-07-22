@@ -1,6 +1,6 @@
 
 import { render, screen, fireEvent } from "@testing-library/react";
-import ModalComponent from "../components/ModalComponent";
+import ModalComponent from ".";
 
 describe("ModalComponent", () => {
   it("renderiza o modal com o título e conteúdo corretos", () => {

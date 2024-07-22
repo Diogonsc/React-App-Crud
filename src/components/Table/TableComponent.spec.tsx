@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import TableComponent from "../components/Table";
+import TableComponent from ".";
 
 const columns = [
   { field: "id", headerName: "ID", width: 90 },
@@ -15,7 +15,7 @@ const rows = [
 const openModal = jest.fn();
 
 describe("TableComponent", () => {
-  test("renders table with columns and rows", () => {
+  it("renders table with columns and rows", () => {
     render(<TableComponent columns={columns} rows={rows} openModal={openModal} />);
 
     // Verifica se as colunas estão presentes
@@ -27,7 +27,7 @@ describe("TableComponent", () => {
     expect(screen.getByText("Jane Smith")).toBeInTheDocument();
   });
 
-  test("calls openModal when 'Novo Cliente' button is clicked", () => {
+  it("calls openModal when 'Novo Cliente' button is clicked", () => {
     render(<TableComponent columns={columns} rows={rows} openModal={openModal} />);
 
     // Verifica se o botão "Novo Cliente" está presente

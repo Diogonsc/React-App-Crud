@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import DrawerAppBar from '../components/DrawerAppBar';
+import DrawerAppBar from '.';
 
 describe('DrawerAppBar', () => {
-  test('renders the app bar and drawer', () => {
+  it('renderiza a app bar e o drawer', () => {
     render(
       <Router>
         <DrawerAppBar />
@@ -21,7 +21,7 @@ describe('DrawerAppBar', () => {
     expect(screen.getByText(/Cadastro Clientes/i)).toBeInTheDocument();
   });
 
-  test('opens and closes the drawer', () => {
+  it('abre e fecha o drawer', () => {
     render(
       <Router>
         <DrawerAppBar />

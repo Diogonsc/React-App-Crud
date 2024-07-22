@@ -1,7 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import ErrorPage from '../pages/ErrorPage';
+import ErrorPage from '.';
+
 
 describe('ErrorPage', () => {
   it('deve renderizar a imagem de erro 404', () => {
