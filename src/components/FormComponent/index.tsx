@@ -65,11 +65,15 @@ export const FormComponent = ({
   });
 
   const onSubmit = async (data: FormData) => {
+    const newData = {
+      ...data,
+      birthDate: dayjs(data.birthDate).format("YYYY/MM/DD"),
+    };
     try {
       if (isEdit) {
-        await axios.put(`/api/clients/${client.id}`, data);
+        await axios.put(`/api/clients/${client.id}`, newData);
       } else {
-        await axios.post("/api/clients", data);
+        await axios.post("/api/clients", newData);
       }
     } catch (error) {
       console.error(`Erro ao ${isEdit ? "editar" : "cadastrar"} cliente:`, error);
