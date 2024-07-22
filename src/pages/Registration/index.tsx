@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import axios from "axios";
 import { GridColDef } from "@mui/x-data-grid";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,7 +12,10 @@ import {
 import TableComponent from '../../components/Table';
 import ModalComponent from '../../components/ModalComponent';
 import { FormComponent } from '../../components/FormComponent';
-import ConfirmDeleteModal from '../../components/ConfirmDeleteModal'; // ajuste o caminho conforme necessário
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
+import { getAllClients } from '../../services/getAllClients';
+import { deleteClient } from '../../services/deleteClient';
+import dayjs from 'dayjs';
 
 export interface IClient {
   id: number;
@@ -87,13 +89,9 @@ const RegistrationPage: React.FC = () => {
 
   const handleDelete = useCallback(async () => {
     if (clientToDelete !== null) {
-      try {
-        await axios.delete(`/api/clients/${clientToDelete}`);
-        setRows((prevRows) => prevRows.filter((row) => row.id !== clientToDelete));
-        setConfirmDeleteOpen(false);
-      } catch (error) {
-        console.error("Erro ao excluir cliente:", error);
-      }
+      await deleteClient(clientToDelete);
+      handleAllClients();
+      closeConfirmDeleteModal();
     }
   }, [clientToDelete]);
 
@@ -107,18 +105,20 @@ const RegistrationPage: React.FC = () => {
     setClientToDelete(null);
   };
 
-  const getAllClients = useCallback(async () => {
-    try {
-      const response = await axios.get("/api/clients");
-      setRows(response.data);
-    } catch (error) {
-      console.error("Erro ao buscar clientes:", error);
-    }
+  const handleAllClients = useCallback(async () => {
+    const data = await getAllClients();
+    
+    const formattedData = data.map(client => ({
+      ...client,
+      birthDate: dayjs(client.birthDate).format('DD/MM/YYYY'),
+    }));
+    
+    setRows(formattedData);
   }, []);
 
   useEffect(() => {
-    getAllClients();
-  }, [getAllClients]);
+    handleAllClients();
+  }, [handleAllClients]);
 
   return (
     <ContainerRegistration>
@@ -138,7 +138,7 @@ const RegistrationPage: React.FC = () => {
           client={selectedClient}
           isEdit={isEdit}
           closeModal={handleCloseModal}
-          getAllClients={getAllClients}
+          getAllClients={handleAllClients}
         />
       </ModalComponent>
       <ConfirmDeleteModal

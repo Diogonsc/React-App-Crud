@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import { TextField, MenuItem, Grid } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -11,6 +10,9 @@ import * as yup from "yup";
 import InputMask from "react-input-mask";
 import { ButtonComponent, Container, ContainerForm } from "./formStyles";
 import dayjs from "dayjs";
+import { getApi } from "../../utils/api";
+import { updateClient } from "../../services/updateClient";
+import { createClient } from "../../services/createClient";
 
 const schema = yup
   .object({
@@ -30,14 +32,22 @@ const schema = yup
   })
   .required();
 
-type FormData = yup.InferType<typeof schema>;
+export type FormData = yup.InferType<typeof schema>;
 
-export const FormComponent = ({
+interface FormComponentProps {
+  client?: Partial<FormData>;
+  isEdit: boolean;
+  closeModal: () => void;
+  getAllClients: () => void;
+}
+
+export const FormComponent: React.FC<FormComponentProps> = ({
   client,
   isEdit,
   closeModal,
   getAllClients,
 }) => {
+  const api = getApi();
   const {
     register,
     handleSubmit,
@@ -65,15 +75,11 @@ export const FormComponent = ({
   });
 
   const onSubmit = async (data: FormData) => {
-    const newData = {
-      ...data,
-      birthDate: dayjs(data.birthDate).format("YYYY/MM/DD"),
-    };
     try {
       if (isEdit) {
-        await axios.put(`/api/clients/${client.id}`, newData);
+        await updateClient(client!.id, data);
       } else {
-        await axios.post("/api/clients", newData);
+        await createClient(data);
       }
     } catch (error) {
       console.error(`Erro ao ${isEdit ? "editar" : "cadastrar"} cliente:`, error);
@@ -88,9 +94,7 @@ export const FormComponent = ({
     const zip = e.target.value;
     if (zip.length === 9) {
       try {
-        const response = await axios.get(
-          `https://viacep.com.br/ws/${zip}/json/`
-        );
+        const response = await api.get(`https://viacep.com.br/ws/${zip}/json/`);
         const { logradouro, bairro, localidade, uf } = response.data;
         setValue("street", logradouro);
         setValue("neighborhood", bairro);
@@ -117,16 +121,11 @@ export const FormComponent = ({
             />
           </Grid>
           <Grid item xs={6}>
-            <LocalizationProvider
-              dateAdapter={AdapterDayjs}
-              adapterLocale="pt-br"
-            >
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
               <Controller
                 name="birthDate"
                 control={control}
-                defaultValue={
-                  client?.birthDate ? dayjs(client.birthDate) : null
-                }
+                defaultValue={client?.birthDate ? dayjs(client.birthDate) : null}
                 render={({ field }) => (
                   <DatePicker
                     label="Data de Nascimento"
