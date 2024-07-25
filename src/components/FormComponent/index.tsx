@@ -82,7 +82,10 @@ export const FormComponent: React.FC<FormComponentProps> = ({
         await createClient(data);
       }
     } catch (error) {
-      console.error(`Erro ao ${isEdit ? "editar" : "cadastrar"} cliente:`, error);
+      console.error(
+        `Erro ao ${isEdit ? "editar" : "cadastrar"} cliente:`,
+        error
+      );
     } finally {
       reset();
       closeModal();
@@ -121,11 +124,16 @@ export const FormComponent: React.FC<FormComponentProps> = ({
             />
           </Grid>
           <Grid item xs={6}>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+            <LocalizationProvider
+              dateAdapter={AdapterDayjs}
+              adapterLocale="pt-br"
+            >
               <Controller
                 name="birthDate"
                 control={control}
-                defaultValue={client?.birthDate ? dayjs(client.birthDate) : null}
+                defaultValue={
+                  client?.birthDate ? dayjs(client.birthDate) : null
+                }
                 render={({ field }) => (
                   <DatePicker
                     label="Data de Nascimento"

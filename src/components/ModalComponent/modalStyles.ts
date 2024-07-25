@@ -16,7 +16,6 @@ export const Modal = styled.div`
 export const Header = styled.div`
   width: 100%;
   color: var(--text-color);
-  border-bottom: 1px solid var(--background-delphi);
   font-size: 1.2rem;
 `;
 
@@ -36,7 +35,6 @@ export const Close = styled.a`
 `;
 
 export const TitleModal = styled.span`
-  color: var(--darkmode-1);
   font-size: 1rem;
   font-weight: bold;
 `;

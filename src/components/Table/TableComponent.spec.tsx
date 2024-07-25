@@ -16,7 +16,9 @@ const openModal = jest.fn();
 
 describe("TableComponent", () => {
   it("renders table with columns and rows", () => {
-    render(<TableComponent columns={columns} rows={rows} openModal={openModal} />);
+    render(
+      <TableComponent columns={columns} rows={rows} openModal={openModal} />
+    );
 
     // Verifica se as colunas estão presentes
     expect(screen.getByText("ID")).toBeInTheDocument();
@@ -28,7 +30,9 @@ describe("TableComponent", () => {
   });
 
   it("calls openModal when 'Novo Cliente' button is clicked", () => {
-    render(<TableComponent columns={columns} rows={rows} openModal={openModal} />);
+    render(
+      <TableComponent columns={columns} rows={rows} openModal={openModal} />
+    );
 
     // Verifica se o botão "Novo Cliente" está presente
     const addButton = screen.getByTitle("Adicionar novo cliente");

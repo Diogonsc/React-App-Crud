@@ -1,4 +1,3 @@
-
 import { render, screen, fireEvent } from "@testing-library/react";
 import ConfirmDeleteModal from ".";
 
@@ -75,7 +74,9 @@ describe("ConfirmDeleteModal", () => {
     );
 
     // Verifica se o modal não está presente
-    expect(screen.queryByText(/Confirmação de Exclusão/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Confirmação de Exclusão/i)
+    ).not.toBeInTheDocument();
     expect(screen.queryByText(/Test Modal/i)).not.toBeInTheDocument();
   });
-})
+});

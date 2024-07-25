@@ -1,5 +1,12 @@
-import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import React from "react";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 
 interface ConfirmDeleteModalProps {
   open: boolean;
@@ -8,7 +15,12 @@ interface ConfirmDeleteModalProps {
   message: string;
 }
 
-const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ open, onClose, onConfirm, message }) => {
+const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
+  open,
+  onClose,
+  onConfirm,
+  message,
+}) => {
   return (
     <Dialog
       open={open}
@@ -16,10 +28,12 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ open, onClose, 
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">{"Confirmação de Exclusão"}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">
+        {"Confirmação de Exclusão"}
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-         {message}
+          {message}
         </DialogContentText>
       </DialogContent>
       <DialogActions>

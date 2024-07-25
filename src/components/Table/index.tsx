@@ -26,7 +26,11 @@ const CustomToolbar: React.FC<{ openModal?: () => void }> = ({ openModal }) => {
   );
 };
 
-const TableComponent: React.FC<ITabelaProps> = ({ columns, rows, openModal }) => {
+const TableComponent: React.FC<ITabelaProps> = ({
+  columns,
+  rows,
+  openModal,
+}) => {
   return (
     <Box
       sx={{

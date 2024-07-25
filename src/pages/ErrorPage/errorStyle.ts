@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const ErrorContainer = styled.div`
   display: flex;
@@ -25,13 +25,13 @@ export const BoxImageNotFound = styled.div`
 `;
 
 export const BtnGoBack = styled.button`
- background-color: var(--primary);
- color: var(--color);
- padding: 1rem;
- border: 0;
- border-radius: 0.5rem;
- text-transform: uppercase;
- cursor: pointer;
+  background-color: var(--primary);
+  color: var(--color);
+  padding: 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  cursor: pointer;
 
   &:hover {
     background-color: var(--blue);

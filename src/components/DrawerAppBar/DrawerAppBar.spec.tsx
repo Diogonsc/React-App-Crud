@@ -1,10 +1,10 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import DrawerAppBar from '.';
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { BrowserRouter as Router } from "react-router-dom";
+import DrawerAppBar from ".";
 
-describe('DrawerAppBar', () => {
-  it('renderiza a app bar e o drawer', () => {
+describe("DrawerAppBar", () => {
+  it("renderiza a app bar e o drawer", () => {
     render(
       <Router>
         <DrawerAppBar />
@@ -21,7 +21,7 @@ describe('DrawerAppBar', () => {
     expect(screen.getByText(/Cadastro Clientes/i)).toBeInTheDocument();
   });
 
-  it('abre e fecha o drawer', () => {
+  it("abre e fecha o drawer", () => {
     render(
       <Router>
         <DrawerAppBar />
@@ -36,7 +36,7 @@ describe('DrawerAppBar', () => {
     expect(screen.getByText(/Cadastro Clientes/i)).toBeVisible();
 
     // Botão de fechar drawer
-    const closeButton = screen.getByTestId('ChevronLeftIcon');
+    const closeButton = screen.getByTestId("ChevronLeftIcon");
     fireEvent.click(closeButton);
 
     // Verifica se o drawer está oculto

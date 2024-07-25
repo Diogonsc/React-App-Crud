@@ -19,7 +19,6 @@ export const ContainerButton = styled.div`
   align-items: center;
   gap: 1rem;
   z-index: 999;
-
 `;
 
 export const IconButton = styled.div`

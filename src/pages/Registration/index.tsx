@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 import {
   ContainerButton,
@@ -9,13 +9,13 @@ import {
   ContainerTable,
   IconButton,
 } from "./registration";
-import TableComponent from '../../components/Table';
-import ModalComponent from '../../components/ModalComponent';
-import { FormComponent } from '../../components/FormComponent';
-import ConfirmDeleteModal from '../../components/ConfirmDeleteModal';
-import { getAllClients } from '../../services/getAllClients';
-import { deleteClient } from '../../services/deleteClient';
-import dayjs from 'dayjs';
+import TableComponent from "../../components/Table";
+import ModalComponent from "../../components/ModalComponent";
+import { FormComponent } from "../../components/FormComponent";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
+import { getAllClients } from "../../services/getAllClients";
+import { deleteClient } from "../../services/deleteClient";
+import dayjs from "dayjs";
 
 export interface IClient {
   id: number;
@@ -46,7 +46,7 @@ const RegistrationPage: React.FC = () => {
             <EditIcon titleAccess="Editar" />
           </IconButton>
           <IconButton onClick={() => openConfirmDeleteModal(params.row.id)}>
-            <DeleteIcon titleAccess='Excluir' />
+            <DeleteIcon titleAccess="Excluir" />
           </IconButton>
         </ContainerButton>
       ),
@@ -107,12 +107,12 @@ const RegistrationPage: React.FC = () => {
 
   const handleAllClients = useCallback(async () => {
     const data = await getAllClients();
-    
-    const formattedData = data.map(client => ({
+
+    const formattedData = data.map((client) => ({
       ...client,
-      birthDate: dayjs(client.birthDate).format('DD/MM/YYYY'),
+      birthDate: dayjs(client.birthDate).format("DD/MM/YYYY"),
     }));
-    
+
     setRows(formattedData);
   }, []);
 
@@ -145,10 +145,10 @@ const RegistrationPage: React.FC = () => {
         open={confirmDeleteOpen}
         onClose={closeConfirmDeleteModal}
         onConfirm={handleDelete}
-        message='Deseja realmente excluir o cliente?'
+        message="Deseja realmente excluir o cliente?"
       />
     </ContainerRegistration>
   );
-}
+};
 
 export default RegistrationPage;
