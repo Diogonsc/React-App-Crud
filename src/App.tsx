@@ -1,8 +1,13 @@
-import DrawerAppBar from "./components/DrawerAppBar"
+import DrawerAppBar from "./components/DrawerAppBar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
-    <DrawerAppBar />
-  )
+    <>
+      <ToastContainer />
+      <DrawerAppBar />
+    </>
+  );
 }
-export default App
+export default App;

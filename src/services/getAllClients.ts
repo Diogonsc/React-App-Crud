@@ -1,8 +1,8 @@
 import { getApi } from '../utils/api';
+import { toast } from "react-toastify";
 
 const api = getApi();
 
-// Defina o tipo de dado retornado pela API, se possível
 interface Client {
   id: number;
   name: string;
@@ -26,6 +26,7 @@ export const getAllClients = async (): Promise<Client[]> => {
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar clientes:", error);
-    throw error; // Re-lança o erro para ser tratado no chamador
+    toast.error("Erro ao buscar clientes. Por favor, tente novamente.");
+    throw error;
   }
 };
