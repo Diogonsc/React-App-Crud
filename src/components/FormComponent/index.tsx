@@ -4,18 +4,24 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "dayjs/locale/pt-br";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import InputMask from "react-input-mask";
-import { ButtonComponent, Container, ContainerForm } from "./formStyles";
+import {
+  ButtonComponent,
+  Container,
+  ContainerForm,
+  AlertError,
+} from "./formStyles";
 import dayjs from "dayjs";
 import { getApi } from "../../utils/api";
 import { updateClient } from "../../services/updateClient";
 import { createClient } from "../../services/createClient";
 
 const schema = yup
-  .object({
+  .object()
+  .shape({
     name: yup.string().required("Nome é obrigatório"),
     email: yup.string().email("Email inválido").required("Email é obrigatório"),
     phone: yup.string().required("Telefone é obrigatório"),
@@ -26,7 +32,10 @@ const schema = yup
     city: yup.string().required("Cidade é obrigatória"),
     state: yup.string().required("Estado é obrigatório"),
     zip: yup.string().required("CEP é obrigatório"),
-    birthDate: yup.date().required("Data de nascimento é obrigatória"),
+    birthDate: yup
+      .date()
+      .required("Data de Nascimento é obrigatória")
+      .typeError("Data inválida"),
     gender: yup.string().required("Gênero é obrigatório"),
     notes: yup.string(),
   })
@@ -35,7 +44,7 @@ const schema = yup
 export type FormData = yup.InferType<typeof schema>;
 
 interface FormComponentProps {
-  client?: Partial<FormData>;
+  client?: FormData;
   isEdit: boolean;
   closeModal: () => void;
   getAllClients: () => void;
@@ -68,16 +77,16 @@ export const FormComponent: React.FC<FormComponentProps> = ({
       city: client?.city || "",
       state: client?.state || "",
       zip: client?.zip || "",
-      birthDate: client?.birthDate ? dayjs(client.birthDate) : null,
+      birthDate: client?.birthDate ? dayjs(client.birthDate) : undefined,
       gender: client?.gender || "",
       notes: client?.notes || "",
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      if (isEdit) {
-        await updateClient(client!.id, data);
+      if (isEdit && client?.id) {
+        await updateClient(client.id, data);
       } else {
         await createClient(data);
       }
@@ -114,14 +123,14 @@ export const FormComponent: React.FC<FormComponentProps> = ({
       <ContainerForm onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <TextField
-              {...register("name")}
-              label="Nome Completo"
-              fullWidth
-              error={!!errors.name}
-              helperText={errors.name?.message}
-              defaultValue={client?.name || ""}
-            />
+            <div>
+              <TextField
+                label="Nome Completo"
+                fullWidth
+                {...register("name")}
+              />
+              <AlertError>{errors.name?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={6}>
             <LocalizationProvider
@@ -132,53 +141,54 @@ export const FormComponent: React.FC<FormComponentProps> = ({
                 name="birthDate"
                 control={control}
                 defaultValue={
-                  client?.birthDate ? dayjs(client.birthDate) : null
+                  client?.birthDate
+                    ? dayjs(client.birthDate).toDate()
+                    : undefined
                 }
                 render={({ field }) => (
-                  <DatePicker
-                    label="Data de Nascimento"
-                    {...field}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        fullWidth
-                        error={!!errors.birthDate}
-                        helperText={errors.birthDate?.message}
-                      />
-                    )}
-                    sx={{
-                      width: "100%",
-                    }}
-                  />
+                  <div>
+                    <DatePicker
+                      label="Data de Nascimento"
+                      {...field}
+                      format="DD/MM/YYYY"
+                      sx={{
+                        width: "100%",
+                      }}
+                    />
+                    <AlertError>{errors.birthDate?.message}</AlertError>
+                  </div>
                 )}
               />
             </LocalizationProvider>
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              select
-              fullWidth
-              label="Sexo"
-              {...register("gender")}
-              error={!!errors.gender}
-              helperText={errors.gender?.message}
+            <Controller
+              name="gender"
+              control={control}
               defaultValue={client?.gender || ""}
-            >
-              <MenuItem value="Masculino">Masculino</MenuItem>
-              <MenuItem value="Feminino">Feminino</MenuItem>
-              <MenuItem value="Outro">Outro</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Email"
-              type="email"
-              fullWidth
-              {...register("email")}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              defaultValue={client?.email || ""}
+              render={({ field }) => (
+                <div>
+                  <TextField select fullWidth label="Sexo" {...field}>
+                    <MenuItem value="Masculino">Masculino</MenuItem>
+                    <MenuItem value="Feminino">Feminino</MenuItem>
+                    <MenuItem value="Outro">Outro</MenuItem>
+                  </TextField>
+                  <AlertError>{errors.gender?.message}</AlertError>
+                </div>
+              )}
             />
+          </Grid>
+
+          <Grid item xs={6}>
+            <div>
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                {...register("email")}
+              />
+              <AlertError>{errors.email?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={3}>
             <Controller
@@ -186,21 +196,18 @@ export const FormComponent: React.FC<FormComponentProps> = ({
               control={control}
               defaultValue={client?.phone || ""}
               render={({ field }) => (
-                <InputMask
-                  mask="(99) 99999-9999"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.value)}
-                >
-                  {(inputProps) => (
-                    <TextField
-                      {...inputProps}
-                      label="Telefone"
-                      fullWidth
-                      error={!!errors.phone}
-                      helperText={errors.phone?.message}
-                    />
-                  )}
-                </InputMask>
+                <div>
+                  <InputMask
+                    mask="(99) 99999-9999"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {(inputProps) => (
+                      <TextField {...inputProps} label="Telefone" fullWidth />
+                    )}
+                  </InputMask>
+                  <AlertError>{errors.phone?.message}</AlertError>
+                </div>
               )}
             />
           </Grid>
@@ -210,94 +217,77 @@ export const FormComponent: React.FC<FormComponentProps> = ({
               control={control}
               defaultValue={client?.zip || ""}
               render={({ field }) => (
-                <InputMask
-                  mask="99999-999"
-                  {...field}
-                  onBlur={(e) => {
-                    field.onBlur(e);
-                    handleCepBlur(e);
-                  }}
-                >
-                  {(inputProps) => (
-                    <TextField
-                      {...inputProps}
-                      label="CEP"
-                      fullWidth
-                      error={!!errors.zip}
-                      helperText={errors.zip?.message}
-                    />
-                  )}
-                </InputMask>
+                <div>
+                  <InputMask
+                    mask="99999-999"
+                    {...field}
+                    onBlur={(e) => {
+                      field.onBlur(e);
+                      handleCepBlur(e);
+                    }}
+                  >
+                    {(inputProps) => (
+                      <TextField {...inputProps} label="CEP" fullWidth />
+                    )}
+                  </InputMask>
+                  <AlertError>{errors.zip?.message}</AlertError>
+                </div>
               )}
             />
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              label="Rua"
-              fullWidth
-              {...register("street")}
-              error={!!errors.street}
-              helperText={errors.street?.message}
-              defaultValue={client?.street || ""}
-            />
+            <div>
+              <TextField label="Rua" fullWidth {...register("street")} />
+              <AlertError>{errors.street?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={2}>
-            <TextField
-              label="Número"
-              fullWidth
-              {...register("number")}
-              error={!!errors.number}
-              helperText={errors.number?.message}
-              defaultValue={client?.number || ""}
-            />
+            <div>
+              <TextField label="Número" fullWidth {...register("number")} />
+              <AlertError>{errors.number?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={4}>
-            <TextField
-              label="Complemento"
-              fullWidth
-              {...register("complement")}
-              defaultValue={client?.complement || ""}
-            />
+            <div>
+              <TextField
+                label="Complemento"
+                fullWidth
+                {...register("complement")}
+              />
+            </div>
           </Grid>
           <Grid item xs={4}>
-            <TextField
-              label="Bairro"
-              fullWidth
-              {...register("neighborhood")}
-              error={!!errors.neighborhood}
-              helperText={errors.neighborhood?.message}
-              defaultValue={client?.neighborhood || ""}
-            />
+            <div>
+              <TextField
+                label="Bairro"
+                fullWidth
+                {...register("neighborhood")}
+              />
+              <AlertError>{errors.neighborhood?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={4}>
-            <TextField
-              label="Cidade"
-              fullWidth
-              {...register("city")}
-              error={!!errors.city}
-              helperText={errors.city?.message}
-              defaultValue={client?.city || ""}
-            />
+            <div>
+              <TextField label="Cidade" fullWidth {...register("city")} />
+              <AlertError>{errors.city?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={4}>
-            <TextField
-              label="Estado"
-              fullWidth
-              {...register("state")}
-              error={!!errors.state}
-              helperText={errors.state?.message}
-              defaultValue={client?.state || ""}
-            />
+            <div>
+              <TextField label="Estado" fullWidth {...register("state")} />
+              <AlertError>{errors.state?.message}</AlertError>
+            </div>
           </Grid>
           <Grid item xs={12}>
-            <TextField
-              label="Observações"
-              fullWidth
-              multiline
-              rows={4}
-              {...register("notes")}
-              defaultValue={client?.notes || ""}
-            />
+            <div>
+              <TextField
+                label="Observações"
+                fullWidth
+                multiline
+                rows={4}
+                {...register("notes")}
+              />
+            </div>
           </Grid>
           <Grid item xs={12}>
             <ButtonComponent type="submit">

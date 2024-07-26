@@ -31,3 +31,9 @@ export const ButtonComponent = styled.button`
     background-color: var(--primary-dark);
   }
 `;
+
+export const AlertError = styled.p`
+ color: var(--danger);
+ display: flex;
+ justify-content: flex-start;
+`;
