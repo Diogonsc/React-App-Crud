@@ -70,6 +70,7 @@ const RegistrationPage: React.FC = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleOpenModal = useCallback(() => {
     setOpen(true);
@@ -106,6 +107,7 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleAllClients = useCallback(async () => {
+    setLoading(true);
     const data = await getAllClients();
 
     const formattedData = data.map((client) => ({
@@ -114,6 +116,7 @@ const RegistrationPage: React.FC = () => {
     }));
 
     setRows(formattedData);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -127,6 +130,7 @@ const RegistrationPage: React.FC = () => {
           columns={columns}
           rows={rows}
           openModal={handleOpenModal}
+          loading={loading}
         />
       </ContainerTable>
       <ModalComponent

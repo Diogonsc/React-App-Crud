@@ -3,25 +3,11 @@ import { toast } from "react-toastify";
 
 const api = getApi();
 
-interface Client {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  zip: string;
-  birthDate: string;
-  gender: string;
-  notes?: string;
-}
-
-export const getAllClients = async (): Promise<Client[]> => {
+export const getAllClients = async (): Promise<FormData> => {
   try {
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1500);
+
     const response = await api.get("/api/clients");
     return response.data;
   } catch (error) {
