@@ -19,6 +19,7 @@ Este é um projeto de CRUD (Create, Read, Update, Delete) desenvolvido em React 
 - **reactjs-popup**: Biblioteca para criar popups modais.
 - **jest**: Estrutura de testes em JavaScript.
 - **react testing library**: Conjunto de utilitários para testar componentes React.
+- **react-toastify**: É uma biblioteca para exibir notificações personalizáveis em aplicações React.
 
 
 ## Instalação
@@ -57,6 +58,7 @@ Para rodar o projeto localmente, siga os passos abaixo:
 - **axios**: Utilizado para fazer requisições HTTP para o backend.
 - **reactjs-popup**: Utilizado para criar popups modais na aplicação.
 - **jest** e **react testing library**: Utilizados para escrever e executar testes unitários.
+- **react-toastify**: Utilizado para exibir notificações personalizáveis.
 
 
 
