@@ -5,4 +5,5 @@ export interface ITabelaProps {
   columns: GridColDef[] | null;
   rows: IClient[] | null;
   openModal?: () => void;
+  loading: boolean;
 }

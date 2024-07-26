@@ -5,6 +5,7 @@ import { ptBR } from "@mui/x-data-grid/locales";
 import { ITabelaProps } from "./ITable";
 import { BtnIconAdd } from "./tableStyles";
 import { Box } from "@mui/material";
+import TableSkeleton from "./tableSkeleton"; // Importe o TableSkeleton
 import { IClient } from "../../pages/Registration";
 
 const CustomToolbar: React.FC<{ openModal?: () => void }> = ({ openModal }) => {
@@ -30,6 +31,7 @@ const TableComponent: React.FC<ITabelaProps> = ({
   columns,
   rows,
   openModal,
+  loading,
 }) => {
   return (
     <Box
@@ -38,39 +40,44 @@ const TableComponent: React.FC<ITabelaProps> = ({
         width: "100%",
       }}
     >
-      <DataGrid
-        localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
-        rows={rows || []}
-        getRowId={(row: IClient) => row.id}
-        columns={columns || []}
-        slots={{ toolbar: () => <CustomToolbar openModal={openModal} /> }}
-        sx={{
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: "white",
-            fontFamily: "Poppins",
-            border: "none",
-            color: "#616161",
-            textTransform: "uppercase",
-          },
-          "& .MuiDataGrid-columnSeparator": {
-            display: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            color: "#000",
-            fontFamily: "Poppins",
-            fontSize: "14px",
-            display: "flex",
-            alignItems: "center",
-            textTransform: "uppercase",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            "&::-webkit-scrollbar": {
-              width: "0px",
-              background: "transparent",
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <DataGrid
+          localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
+          rows={rows || []}
+          getRowId={(row: IClient) => row.id}
+          columns={columns || []}
+          
+          slots={{ toolbar: () => <CustomToolbar openModal={openModal} /> }}
+          sx={{
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "white",
+              fontFamily: "Poppins",
+              border: "none",
+              color: "#616161",
+              textTransform: "uppercase",
             },
-          },
-        }}
-      />
+            "& .MuiDataGrid-columnSeparator": {
+              display: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              color: "#000",
+              fontFamily: "Poppins",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              textTransform: "uppercase",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              "&::-webkit-scrollbar": {
+                width: "0px",
+                background: "transparent",
+              },
+            },
+          }}
+        />
+      )}
     </Box>
   );
 };
