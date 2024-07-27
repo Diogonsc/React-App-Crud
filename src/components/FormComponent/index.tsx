@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import "dayjs/locale/pt-br";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import InputMask from "react-input-mask";
@@ -57,6 +58,7 @@ export const FormComponent: React.FC<FormComponentProps> = ({
   getAllClients,
 }) => {
   const api = getApi();
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -83,22 +85,32 @@ export const FormComponent: React.FC<FormComponentProps> = ({
     },
   });
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    try {
-      if (isEdit && client?.id) {
-        await updateClient(client.id, data);
-      } else {
-        await createClient(data);
-      }
-    } catch (error) {
-      console.error(
-        `Erro ao ${isEdit ? "editar" : "cadastrar"} cliente:`,
-        error
-      );
-    } finally {
+  const createMutation = useMutation(createClient, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("clients");
       reset();
       closeModal();
       getAllClients();
+    },
+  });
+
+  const updateMutation = useMutation(
+    ({ id, data }: { id: number; data: FormData }) => updateClient(id, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries("clients");
+        reset();
+        closeModal();
+        getAllClients();
+      },
+    }
+  );
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (isEdit && client?.id) {
+      updateMutation.mutate({ id: client.id, data });
+    } else {
+      createMutation.mutate(data);
     }
   };
 

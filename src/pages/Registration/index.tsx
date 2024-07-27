@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { useMutation, useQuery, useQueryClient  } from "react-query";
 
 import {
   ContainerButton,
@@ -16,23 +17,6 @@ import ConfirmDeleteModal from "../../components/ConfirmDeleteModal";
 import { getAllClients } from "../../services/getAllClients";
 import { deleteClient } from "../../services/deleteClient";
 import dayjs from "dayjs";
-
-export interface IClient {
-  id: number;
-  name: string | null;
-  birthDate: string | null;
-  gender: string;
-  email: string;
-  phone: string;
-  zip: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  notes: string;
-}
 
 const RegistrationPage: React.FC = () => {
   const [columns] = useState<GridColDef[]>([
@@ -64,13 +48,27 @@ const RegistrationPage: React.FC = () => {
     { field: "city", headerName: "Cidade", width: 200 },
     { field: "state", headerName: "Estado", width: 200 },
   ]);
-  const [rows, setRows] = useState<IClient[]>([]);
   const [open, setOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<IClient | null>(null);
+  const [selectedClient, setSelectedClient] = useState<FormData | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data: rows = [], isLoading: loading } = useQuery('clients', async () => {
+    const data = await getAllClients();
+    return data.map(client => ({
+      ...client,
+      birthDate: dayjs(client.birthDate).format("DD/MM/YYYY"),
+    }));
+  });
+
+  const deleteMutation = useMutation(deleteClient, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('clients');
+      closeConfirmDeleteModal();
+    },
+  });
 
   const handleOpenModal = useCallback(() => {
     setOpen(true);
@@ -82,19 +80,17 @@ const RegistrationPage: React.FC = () => {
     setIsEdit(false);
   }, []);
 
-  const handleEdit = useCallback((client: IClient) => {
+  const handleEdit = useCallback((client: FormData) => {
     setSelectedClient(client);
     setIsEdit(true);
     setOpen(true);
   }, []);
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = useCallback(() => {
     if (clientToDelete !== null) {
-      await deleteClient(clientToDelete);
-      handleAllClients();
-      closeConfirmDeleteModal();
+      deleteMutation.mutate(clientToDelete);
     }
-  }, [clientToDelete]);
+  }, [clientToDelete, deleteMutation]);
 
   const openConfirmDeleteModal = (id: number) => {
     setClientToDelete(id);
@@ -105,24 +101,6 @@ const RegistrationPage: React.FC = () => {
     setConfirmDeleteOpen(false);
     setClientToDelete(null);
   };
-
-  const handleAllClients = useCallback(async () => {
-    setLoading(true);
-    const data = await getAllClients();
-
-    const formattedData = data.map((client) => ({
-      ...client,
-      birthDate: dayjs(client.birthDate).format("DD/MM/YYYY"),
-    }));
-
-    setRows(formattedData);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    handleAllClients();
-  }, [handleAllClients]);
-
   return (
     <ContainerRegistration>
       <ContainerTable>
@@ -142,7 +120,7 @@ const RegistrationPage: React.FC = () => {
           client={selectedClient}
           isEdit={isEdit}
           closeModal={handleCloseModal}
-          getAllClients={handleAllClients}
+          getAllClients={() => queryClient.invalidateQueries('clients')}
         />
       </ModalComponent>
       <ConfirmDeleteModal
